@@ -44,3 +44,13 @@ Bounded portrait layout, fixed camera, single-tap tools, range feedback, persist
 ## v0.3 match completion
 
 Scores count strokes. Evaluate results after a shot stops, preserving the opponent’s chance to tie on that shot. Once one ball is holed and the other player cannot tie or win, settle immediately. A 12-stroke unholed player forfeits; this never counts as holing out. Result cards explicitly label IN THE CUP / NOT HOLED / STROKE LIMIT. Regression tests include a holed human at 2 versus a bot trapped at 6, last-shot ties and exhausted turns.
+
+
+## v0.4 — challenge and visibility
+- Short 1.6m direction cue; no stopping-point ring.
+- Manual aim offset and fixed 50% starting power. Maximum player shot range about 14.4m; the opening shot cannot reach the cup.
+- Bot preparation reduced from 17 to 8 seconds, with advance look-back warnings.
+- Course canvas has dedicated space between HUD and controls.
+- Existing match-settlement fixes retained.
+
+Validation: Node gameplay regression tests passed. Mobile visual QA still required; browser launch was unavailable in the build environment.

@@ -11,7 +11,7 @@ for(let i=1;i<=5;i++){catchCooldown=0;actionLock=false;catchPlayer();assert.equa
 state.caught=0;state.mode='bot';state.tool='beer';state.beer=1;actionAnim=0;scanAngle=Math.PI;human.g.position.set(0,0,4);useTool();assert.equal(state.beer,1);human.g.position.set(0,0,1);useTool();assert.equal(state.beer,0);assert.equal(beerHit,true);useTool();assert.equal(state.beer,0);
 state.tool='water';state.water=3;actionAnim=0;useTool();assert.equal(state.water,2);assert.equal(state.traps.length,1);useTool();assert.equal(state.water,2);assert.ok(Math.hypot(state.traps[0].x-robot.g.position.x,state.traps[0].z-robot.g.position.z)<1.2);
 // Player aim is visible immediately, slider changes alter shot, canvas does not shoot.
-state.p=0;state.pDone=false;enterPlayer();assert.equal(line.visible,true);assert.equal(aimTarget.visible,true);assert.equal(state.p,0);$('#aimAngle').value=20;refreshAim();const expected=Math.sin(shotAngle)*shotSpeed;hitBall();assert.equal(state.p,1);assert.ok(Math.abs(moving.vx-expected)<1e-8);hitBall();assert.equal(state.p,1);
+state.p=0;state.pDone=false;enterPlayer();assert.equal(line.visible,true);assert.equal(aimTarget.visible,false);assert.equal(state.p,0);$('#aimAngle').value=20;refreshAim();const expected=Math.sin(shotAngle)*shotSpeed;hitBall();assert.equal(state.p,1);assert.ok(Math.abs(moving.vx-expected)<1e-8);hitBall();assert.equal(state.p,1);
 // A pit slows a rolling ball, and clean robot shots can finish a hole.
 state.traps=[];state.pDone=false;state.bDone=false;state.p=1;state.b=0;ballB.position.set(.9,.14,7);robot.g.position.set(1.55,0,7);beerHit=false;
 for(let shot=0;shot<5&&!state.bDone;shot++){botShot();for(let i=0;i<900&&moving;i++)physics(1/60)}assert.equal(state.bDone,true);assert.ok(state.b<=4,'clean robot finishes within par');
@@ -29,6 +29,12 @@ Object.assign(state,{p:12,b:4,pDone:false,bDone:false});enterPlayer();assert.equ
 Object.assign(state,{p:4,b:12,pDone:false,bDone:false});enterBot();assert.equal(state.mode,'end');assert.equal(state.bDone,false);
 // Reproduce a pit-stopped bot shot at equal score: ends as a player win.
 Object.assign(state,{p:2,b:1,pDone:true,bDone:false});state.traps=[];addTrap('dig',0,-11);ballB.position.set(0,.14,-11);shoot('b',0,-1,2);for(let i=0;i<400&&moving;i++)physics(1/60);assert.equal(state.mode,'end');assert.ok($('.card').innerHTML.includes('WIN.'));assert.equal(state.bDone,false);
+// v0.4 challenge: short direction cue independent of power, no first-shot hole-in-one.
+moving=null;Object.assign(state,{p:0,b:0,pDone:false,bDone:false,mode:'player',caught:0});state.traps=[];ballP.position.set(-.9,.14,7);enterPlayer();assert.equal(Number($('#shotPower').value),50);assert.notEqual(Number($('#aimAngle').value),0);
+$('#shotPower').value=100;$('#aimAngle').value=0;refreshAim();const points=line.geometry.attributes.position;assert.ok(Math.abs(Math.hypot(points.getX(1)-points.getX(0),points.getZ(1)-points.getZ(0))-1.6)<1e-5);assert.equal(aimTarget.visible,false);hitBall();for(let i=0;i<900&&moving;i++)physics(1/60);assert.equal(state.pDone,false);assert.ok(ballP.position.distanceTo(new T.Vector3(0,.14,-13))>5);
+// Bot commits to a shot at eight seconds, with a visible warning beforehand.
+enterBot();state.phaseTime=3.8;updateBot(.01);assert.ok($('#phase').textContent.includes('ABOUT TO LOOK'));state.phaseTime=7.99;updateBot(.02);assert.equal(state.mode,'rolling');assert.equal(moving.who,'b');
+console.log('PASS: v0.4 short cue, manual setup, tee distance limit, eight-second bot turn');
 console.log('PASS: reported 2-vs-6 softlock, tie opportunity, settled missed tie shot, mirrored loss, stroke caps, trapped bot end-to-end');
 console.log('PASS: vision direction, five catches, catch debounce, beer range/single-use, water persistence/single-use, visible aim/sliders/shot debounce, bot completion, pit physics');
 `,context);
